@@ -21,8 +21,8 @@ impl AtCoderClient {
             ATCODER_PREFIX, request.page
         );
         let html = util::fetch_html(&url)?;
-
-        unimplemented!("{}", html)
+        let contests = contest::scrape(&html)?;
+        Ok(AtCoderContestListResponse { contests })
     }
 
     pub fn fetch_submission_list(
@@ -45,7 +45,6 @@ pub struct AtCoderContestListRequest {
 }
 
 pub struct AtCoderContestListResponse {
-    pub max_page: u32,
     pub contests: Vec<AtCoderContest>,
 }
 
@@ -74,5 +73,6 @@ mod tests {
         let client = AtCoderClient::new();
         let request = AtCoderContestListRequest { page: 1 };
         let response = client.fetch_contest_list(request).unwrap();
+        assert_eq!(response.contests.len(), 50);
     }
 }
