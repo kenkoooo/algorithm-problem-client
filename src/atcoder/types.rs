@@ -20,6 +20,12 @@ pub struct AtCoderProblemListRequest<'a> {
     pub contest_id: &'a str,
 }
 
+impl<'a> AtCoderProblemListRequest<'a> {
+    pub fn new(contest_id: &'a str) -> Self {
+        Self { contest_id }
+    }
+}
+
 pub struct AtCoderProblemListResponse {
     pub problems: Vec<AtCoderProblem>,
 }

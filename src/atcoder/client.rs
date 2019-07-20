@@ -1,12 +1,34 @@
-use crate::util;
+use crate::util::HtmlClient;
 use crate::Result;
 
 use super::*;
 
+use reqwest::Client;
+
 const ATCODER_PREFIX: &str = "https://atcoder.jp";
 
-#[derive(Default)]
-pub struct AtCoderClient;
+/// A client for AtCoder.
+///
+/// # Example
+///
+/// ```
+/// use algorithm_problem_client::atcoder::{AtCoderProblemListRequest, AtCoderClient};
+///
+/// let client = AtCoderClient::default();
+/// let request = AtCoderProblemListRequest::new("abc107");
+/// let response = client.fetch_problem_list(request).unwrap();
+/// ```
+pub struct AtCoderClient {
+    client: Client,
+}
+
+impl Default for AtCoderClient {
+    fn default() -> Self {
+        Self {
+            client: Client::new(),
+        }
+    }
+}
 
 impl AtCoderClient {
     pub fn fetch_contest_list(
@@ -17,11 +39,12 @@ impl AtCoderClient {
             "{}/contests/archive?lang=ja&page={}",
             ATCODER_PREFIX, request.page
         );
-        let html = util::fetch_html(&url)?;
+        let html = self.client.get_html(&url)?;
         let contests = contest::scrape(&html)?;
         Ok(AtCoderContestListResponse { contests })
     }
 
+    /// Fetch a list of submissions.
     pub fn fetch_submission_list(
         &self,
         request: AtCoderSubmissionListRequest,
@@ -31,7 +54,7 @@ impl AtCoderClient {
             "{}/contests/{}/submissions?page={}",
             ATCODER_PREFIX, request.contest_id, page
         );
-        let html = util::fetch_html(&url)?;
+        let html = self.client.get_html(&url)?;
         let submissions = submission::scrape(&html, request.contest_id)?;
         let max_page = submission::scrape_submission_page_count(&html)?;
         Ok(AtCoderSubmissionListResponse {
@@ -45,7 +68,7 @@ impl AtCoderClient {
         request: AtCoderProblemListRequest,
     ) -> Result<AtCoderProblemListResponse> {
         let url = format!("{}/contests/{}/tasks", ATCODER_PREFIX, request.contest_id);
-        let html = util::fetch_html(&url)?;
+        let html = self.client.get_html(&url)?;
         let problems = problem::scrape(&html, request.contest_id)?;
         Ok(AtCoderProblemListResponse { problems })
     }
@@ -66,9 +89,7 @@ mod tests {
     #[test]
     fn test_fetch_problem_list() {
         let client = AtCoderClient::default();
-        let request = AtCoderProblemListRequest {
-            contest_id: "abc107",
-        };
+        let request = AtCoderProblemListRequest::new("abc107");
         let response = client.fetch_problem_list(request).unwrap();
         assert_eq!(response.problems.len(), 4);
     }
