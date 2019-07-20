@@ -1,33 +1,6 @@
-pub struct AtCoderContestListRequest {
-    pub page: u32,
-}
-
-pub struct AtCoderContestListResponse {
-    pub contests: Vec<AtCoderContest>,
-}
-
-pub struct AtCoderSubmissionListRequest<'a> {
-    pub contest_id: &'a str,
-    pub page: Option<u32>,
-}
-
 pub struct AtCoderSubmissionListResponse {
     pub max_page: u32,
     pub submissions: Vec<AtCoderSubmission>,
-}
-
-pub struct AtCoderProblemListRequest<'a> {
-    pub contest_id: &'a str,
-}
-
-impl<'a> AtCoderProblemListRequest<'a> {
-    pub fn new(contest_id: &'a str) -> Self {
-        Self { contest_id }
-    }
-}
-
-pub struct AtCoderProblemListResponse {
-    pub problems: Vec<AtCoderProblem>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

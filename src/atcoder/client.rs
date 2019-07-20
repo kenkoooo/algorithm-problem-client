@@ -12,11 +12,10 @@ const ATCODER_PREFIX: &str = "https://atcoder.jp";
 /// # Example
 ///
 /// ```
-/// use algorithm_problem_client::atcoder::{AtCoderProblemListRequest, AtCoderClient};
+/// use algorithm_problem_client::atcoder::AtCoderClient;
 ///
 /// let client = AtCoderClient::default();
-/// let request = AtCoderProblemListRequest::new("abc107");
-/// let response = client.fetch_problem_list(request).unwrap();
+/// let problems = client.fetch_problem_list("abc107").unwrap();
 /// ```
 pub struct AtCoderClient {
     client: Client,
@@ -31,31 +30,25 @@ impl Default for AtCoderClient {
 }
 
 impl AtCoderClient {
-    pub fn fetch_contest_list(
-        &self,
-        request: AtCoderContestListRequest,
-    ) -> Result<AtCoderContestListResponse> {
-        let url = format!(
-            "{}/contests/archive?lang=ja&page={}",
-            ATCODER_PREFIX, request.page
-        );
+    pub fn fetch_contest_list(&self, page: u32) -> Result<Vec<AtCoderContest>> {
+        let url = format!("{}/contests/archive?lang=ja&page={}", ATCODER_PREFIX, page);
         let html = self.client.get_html(&url)?;
-        let contests = contest::scrape(&html)?;
-        Ok(AtCoderContestListResponse { contests })
+        contest::scrape(&html)
     }
 
     /// Fetch a list of submissions.
     pub fn fetch_submission_list(
         &self,
-        request: AtCoderSubmissionListRequest,
+        contest_id: &str,
+        page: Option<u32>,
     ) -> Result<AtCoderSubmissionListResponse> {
-        let page = request.page.unwrap_or(1);
+        let page = page.unwrap_or(1);
         let url = format!(
             "{}/contests/{}/submissions?page={}",
-            ATCODER_PREFIX, request.contest_id, page
+            ATCODER_PREFIX, contest_id, page
         );
         let html = self.client.get_html(&url)?;
-        let submissions = submission::scrape(&html, request.contest_id)?;
+        let submissions = submission::scrape(&html, contest_id)?;
         let max_page = submission::scrape_submission_page_count(&html)?;
         Ok(AtCoderSubmissionListResponse {
             max_page,
@@ -63,14 +56,10 @@ impl AtCoderClient {
         })
     }
 
-    pub fn fetch_problem_list(
-        &self,
-        request: AtCoderProblemListRequest,
-    ) -> Result<AtCoderProblemListResponse> {
-        let url = format!("{}/contests/{}/tasks", ATCODER_PREFIX, request.contest_id);
+    pub fn fetch_problem_list(&self, contest_id: &str) -> Result<Vec<AtCoderProblem>> {
+        let url = format!("{}/contests/{}/tasks", ATCODER_PREFIX, contest_id);
         let html = self.client.get_html(&url)?;
-        let problems = problem::scrape(&html, request.contest_id)?;
-        Ok(AtCoderProblemListResponse { problems })
+        problem::scrape(&html, contest_id)
     }
 }
 
@@ -81,42 +70,29 @@ mod tests {
     #[test]
     fn test_fetch_contest_list() {
         let client = AtCoderClient::default();
-        let request = AtCoderContestListRequest { page: 1 };
-        let response = client.fetch_contest_list(request).unwrap();
-        assert_eq!(response.contests.len(), 50);
+        let contests = client.fetch_contest_list(1).unwrap();
+        assert_eq!(contests.len(), 50);
     }
 
     #[test]
     fn test_fetch_problem_list() {
         let client = AtCoderClient::default();
-        let request = AtCoderProblemListRequest::new("abc107");
-        let response = client.fetch_problem_list(request).unwrap();
-        assert_eq!(response.problems.len(), 4);
+        let problems = client.fetch_problem_list("abc107").unwrap();
+        assert_eq!(problems.len(), 4);
     }
 
     #[test]
     fn test_fetch_submission_list() {
         let client = AtCoderClient::default();
-
-        let request = AtCoderSubmissionListRequest {
-            contest_id: "abc134",
-            page: None,
-        };
-        let response = client.fetch_submission_list(request).unwrap();
+        let response = client.fetch_submission_list("abc134", None).unwrap();
         assert_eq!(response.submissions.len(), 20);
 
-        let request = AtCoderSubmissionListRequest {
-            contest_id: "abc134",
-            page: Some(response.max_page),
-        };
-        let response = client.fetch_submission_list(request).unwrap();
+        let response = client
+            .fetch_submission_list("abc134", Some(response.max_page))
+            .unwrap();
         assert!(!response.submissions.is_empty());
 
-        let request = AtCoderSubmissionListRequest {
-            contest_id: "abc134",
-            page: Some(response.max_page + 1),
-        };
-        let response = client.fetch_submission_list(request);
+        let response = client.fetch_submission_list("abc134", Some(response.max_page + 1));
         assert!(response.is_err());
     }
 }
