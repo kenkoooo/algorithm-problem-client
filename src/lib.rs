@@ -1,4 +1,4 @@
-mod atcoder;
+pub mod atcoder;
 mod error;
 mod util;
 
