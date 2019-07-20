@@ -7,3 +7,6 @@ description = "HTTP Client for algorithm problems"
 license-file = "LICENSE"
 
 [dependencies]
+reqwest = "0.9"
+scraper = "0.10"
+chrono = "0.4"
