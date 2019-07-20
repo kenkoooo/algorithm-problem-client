@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::Result;
 
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_ENCODING};
 use reqwest::Client;

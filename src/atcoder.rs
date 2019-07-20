@@ -1,4 +1,5 @@
 mod contest;
+mod problem;
 
 use crate::util;
 use crate::Result;
@@ -35,8 +36,11 @@ impl AtCoderClient {
     pub fn fetch_problem_list(
         &self,
         request: AtCoderProblemListRequest,
-    ) -> Result<AtCoderContestListResponse> {
-        unimplemented!()
+    ) -> Result<AtCoderProblemListResponse> {
+        let url = format!("{}/contests/{}/tasks", ATCODER_PREFIX, request.contest_id);
+        let html = util::fetch_html(&url)?;
+        let problems = problem::scrape(&html, request.contest_id)?;
+        Ok(AtCoderProblemListResponse { problems })
     }
 }
 
@@ -48,6 +52,18 @@ pub struct AtCoderContestListResponse {
     pub contests: Vec<AtCoderContest>,
 }
 
+pub struct AtCoderSubmissionListRequest;
+
+pub struct AtCoderSubmissionListResponse;
+pub struct AtCoderProblemListRequest<'a> {
+    pub contest_id: &'a str,
+}
+
+pub struct AtCoderProblemListResponse {
+    pub problems: Vec<AtCoderProblem>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AtCoderContest {
     pub id: String,
     pub start_epoch_second: u64,
@@ -56,13 +72,16 @@ pub struct AtCoderContest {
     pub rate_change: String,
 }
 
-pub struct AtCoderSubmissionListRequest;
-pub struct AtCoderSubmissionListResponse;
-pub struct AtCoderProblemListRequest;
-pub struct AtCoderProblemListResponse;
-
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AtCoderSubmission;
-pub struct AtCoderProblem;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AtCoderProblem {
+    pub id: String,
+    pub title: String,
+    pub position: String,
+    pub contest_id: String,
+}
 
 #[cfg(test)]
 mod tests {
@@ -74,5 +93,15 @@ mod tests {
         let request = AtCoderContestListRequest { page: 1 };
         let response = client.fetch_contest_list(request).unwrap();
         assert_eq!(response.contests.len(), 50);
+    }
+
+    #[test]
+    fn test_fetch_problem_list() {
+        let client = AtCoderClient::new();
+        let request = AtCoderProblemListRequest {
+            contest_id: "abc107",
+        };
+        let response = client.fetch_problem_list(request).unwrap();
+        assert_eq!(response.problems.len(), 4);
     }
 }
