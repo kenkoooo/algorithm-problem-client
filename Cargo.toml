@@ -1,10 +1,11 @@
 [package]
 name = "algorithm-problem-client"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["kenkoooo <kenkou.n@gmail.com>"]
 edition = "2018"
 description = "HTTP Client for algorithm problems"
 license-file = "LICENSE"
+exclude = ["test_resources/*"]
 
 [dependencies]
 reqwest = "0.9"
