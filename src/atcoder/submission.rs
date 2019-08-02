@@ -14,7 +14,7 @@ pub(super) fn scrape_submission_page_count(html: &str) -> Result<u32> {
         .flat_map(|el| el.value().attr("href"))
         .filter(|href| re.is_match(href))
         .flat_map(|href| href.rsplit('=').next())
-        .flat_map(|text| text.parse::<u32>())
+        .flat_map(str::parse)
         .max()
         .ok_or_else(|| Error::HtmlParseError)
 }
