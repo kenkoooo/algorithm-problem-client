@@ -1,6 +1,5 @@
-use crate::util::HtmlClient;
+use crate::util::HttpClient;
 use crate::Result;
-use reqwest::Client;
 
 use super::*;
 
@@ -28,22 +27,13 @@ impl CodeChefProblemPage {
     }
 }
 
-pub struct CodeChefClient {
-    client: Client,
+pub trait CodeChefClient {
+    fn fetch_problem_list(&self, page: CodeChefProblemPage) -> Result<Vec<CodeChefProblem>>;
 }
-
-impl Default for CodeChefClient {
-    fn default() -> Self {
-        Self {
-            client: Client::new(),
-        }
-    }
-}
-
-impl CodeChefClient {
-    pub fn fetch_problem_list(&self, page: CodeChefProblemPage) -> Result<Vec<CodeChefProblem>> {
+impl CodeChefClient for HttpClient {
+    fn fetch_problem_list(&self, page: CodeChefProblemPage) -> Result<Vec<CodeChefProblem>> {
         let url = format!("{}{}", CODECHEF_PREFIX, page.value());
-        let html = self.client.get_html(&url)?;
+        let html = self.get_html(&url)?;
         problem::scrape(&html)
     }
 }
@@ -54,7 +44,7 @@ mod tests {
 
     #[test]
     fn test_fetch_problem_list() {
-        let client = CodeChefClient::default();
+        let client = HttpClient::default();
         assert!(client
             .fetch_problem_list(CodeChefProblemPage::Beginner)
             .is_ok());
