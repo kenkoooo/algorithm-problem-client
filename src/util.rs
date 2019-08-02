@@ -38,3 +38,7 @@ impl HttpClient {
         Ok(body)
     }
 }
+
+pub trait Problem {
+    fn url(&self) -> String;
+}

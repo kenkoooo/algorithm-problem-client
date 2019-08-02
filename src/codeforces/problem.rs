@@ -1,6 +1,7 @@
 use crate::{Error, Result};
 
 use super::*;
+use crate::codeforces::types::CodeforcesProblemList;
 use scraper::element_ref::Select;
 use scraper::{Html, Selector};
 
@@ -61,10 +62,13 @@ fn scrape_problems(html: &str) -> Result<Vec<CodeforcesProblem>> {
         .collect()
 }
 
-pub fn scrape(html: &str) -> Result<(Vec<CodeforcesProblem>, u32)> {
+pub fn scrape(html: &str) -> Result<(CodeforcesProblemList)> {
     let problems = scrape_problems(html)?;
-    let count = scrape_max_page_count(html)?;
-    Ok((problems, count))
+    let max_page_count = scrape_max_page_count(html)?;
+    Ok(CodeforcesProblemList {
+        problems,
+        max_page_count,
+    })
 }
 
 #[cfg(test)]

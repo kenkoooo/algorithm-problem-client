@@ -1,3 +1,4 @@
+use crate::util::Problem;
 use serde::Deserialize;
 
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Deserialize)]
@@ -54,4 +55,10 @@ pub struct AojSolution {
 
     #[serde(rename = "judgeDate")]
     judge_date: u64,
+}
+
+impl Problem for AojProblem {
+    fn url(&self) -> String {
+        format!("https://onlinejudge.u-aizu.ac.jp/problems/{}", self.id)
+    }
 }
