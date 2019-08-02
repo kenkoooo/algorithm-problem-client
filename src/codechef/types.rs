@@ -1,6 +1,6 @@
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CodeChefProblem {
-    title: String,
-    code: String,
-    successful_counts: u32,
+    pub title: String,
+    pub code: String,
+    pub successful_counts: u32,
 }

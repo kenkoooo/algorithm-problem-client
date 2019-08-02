@@ -22,12 +22,25 @@ pub fn scrape(html: &str) -> Result<Vec<CodeChefProblem>> {
                 .next()
                 .ok_or_else(|| Error::HtmlParseError)?
                 .text()
+                .fold(String::new(), |title, part| title + part)
+                .trim()
+                .to_string();
+            let code = tds
                 .next()
                 .ok_or_else(|| Error::HtmlParseError)?
-                .to_owned();
-
-            println!("{}", title);
-            unimplemented!()
+                .text()
+                .fold(String::new(), |a, part| a + part);
+            let successful_counts = tds
+                .next()
+                .ok_or_else(|| Error::HtmlParseError)?
+                .text()
+                .fold(String::new(), |a, part| a + part)
+                .parse::<u32>()?;
+            Ok(CodeChefProblem {
+                title,
+                code,
+                successful_counts,
+            })
         })
         .collect()
 }
@@ -44,5 +57,14 @@ mod tests {
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
         let problems = scrape(&contents).unwrap();
+        assert_eq!(problems.len(), 8186);
+        assert_eq!(
+            problems[0],
+            CodeChefProblem {
+                title: "Getting Rid of the Holidays (Act I)".to_owned(),
+                code: "HOLIDAY1".to_owned(),
+                successful_counts: 0
+            }
+        );
     }
 }
