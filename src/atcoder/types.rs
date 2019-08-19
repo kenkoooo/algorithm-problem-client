@@ -1,3 +1,5 @@
+use crate::util::Problem;
+
 pub struct AtCoderSubmissionListResponse {
     pub max_page: u32,
     pub submissions: Vec<AtCoderSubmission>,
@@ -32,4 +34,31 @@ pub struct AtCoderProblem {
     pub title: String,
     pub position: String,
     pub contest_id: String,
+}
+
+impl Problem for AtCoderProblem {
+    fn url(&self) -> String {
+        format!(
+            "https://atcoder.jp/contests/{}/tasks/{}",
+            self.contest_id, self.id
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_url() {
+        let problem = AtCoderProblem {
+            id: "arc102_c".to_string(),
+            title: "".to_string(),
+            position: "".to_string(),
+            contest_id: "arc102".to_string(),
+        };
+        assert_eq!(
+            "https://atcoder.jp/contests/arc102/tasks/arc102_c".to_string(),
+            problem.url()
+        );
+    }
 }
