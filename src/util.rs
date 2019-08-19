@@ -4,7 +4,7 @@ use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_ENCODING};
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 
-pub struct HttpClient {
+pub(crate) struct HttpClient {
     client: Client,
 }
 
@@ -17,7 +17,7 @@ impl Default for HttpClient {
 }
 
 impl HttpClient {
-    pub fn get_html(&self, url: &str) -> Result<String> {
+    pub(crate) fn get_html(&self, url: &str) -> Result<String> {
         let mut headers = HeaderMap::new();
         headers.insert(ACCEPT, HeaderValue::from_static("text/html"));
         headers.insert(ACCEPT_ENCODING, HeaderValue::from_static("gzip"));
@@ -26,7 +26,7 @@ impl HttpClient {
         Ok(body)
     }
 
-    pub fn get_json<T>(&self, url: &str) -> Result<T>
+    pub(crate) fn get_json<T>(&self, url: &str) -> Result<T>
     where
         T: DeserializeOwned,
     {

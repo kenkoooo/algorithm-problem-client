@@ -1,6 +1,6 @@
 [package]
 name = "algorithm-problem-client"
-version = "0.3.1"
+version = "0.4"
 authors = ["kenkoooo <kenkou.n@gmail.com>"]
 edition = "2018"
 description = "HTTP Client for algorithm problems"

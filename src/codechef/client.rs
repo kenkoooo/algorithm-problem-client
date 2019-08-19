@@ -27,13 +27,22 @@ impl CodeChefProblemPage {
     }
 }
 
-pub trait CodeChefClient {
-    fn fetch_problem_list(&self, page: CodeChefProblemPage) -> Result<Vec<CodeChefProblem>>;
+pub struct CodeChefClient {
+    http_client: HttpClient,
 }
-impl CodeChefClient for HttpClient {
-    fn fetch_problem_list(&self, page: CodeChefProblemPage) -> Result<Vec<CodeChefProblem>> {
+
+impl Default for CodeChefClient {
+    fn default() -> Self {
+        Self {
+            http_client: HttpClient::default(),
+        }
+    }
+}
+
+impl CodeChefClient {
+    pub fn fetch_problem_list(&self, page: CodeChefProblemPage) -> Result<Vec<CodeChefProblem>> {
         let url = format!("{}{}", CODECHEF_PREFIX, page.value());
-        let html = self.get_html(&url)?;
+        let html = self.http_client.get_html(&url)?;
         problem::scrape(&html)
     }
 }
@@ -44,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_fetch_problem_list() {
-        let client = HttpClient::default();
+        let client = CodeChefClient::default();
         assert!(client
             .fetch_problem_list(CodeChefProblemPage::Beginner)
             .is_ok());

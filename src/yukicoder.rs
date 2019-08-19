@@ -4,14 +4,22 @@ use serde::Deserialize;
 
 const BASE_URL: &str = "https://yukicoder.me/api/v1";
 
-pub trait YukicoderClient {
-    fn fetch_problems(&self) -> Result<Vec<YukicoderProblem>>;
+pub struct YukicoderClient {
+    http_client: HttpClient,
 }
 
-impl YukicoderClient for HttpClient {
-    fn fetch_problems(&self) -> Result<Vec<YukicoderProblem>> {
+impl Default for YukicoderClient {
+    fn default() -> Self {
+        Self {
+            http_client: HttpClient::default(),
+        }
+    }
+}
+
+impl YukicoderClient {
+    pub fn fetch_problems(&self) -> Result<Vec<YukicoderProblem>> {
         let url = format!("{}/problems", BASE_URL);
-        self.get_json(&url)
+        self.http_client.get_json(&url)
     }
 }
 
@@ -37,7 +45,7 @@ mod tests {
 
     #[test]
     fn test_fetch_problems() {
-        let client = HttpClient::default();
+        let client = YukicoderClient::default();
         assert!(client.fetch_problems().is_ok());
     }
 }
