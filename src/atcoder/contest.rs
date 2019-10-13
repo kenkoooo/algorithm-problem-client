@@ -24,7 +24,7 @@ pub(super) fn scrape(html: &str) -> Result<Vec<AtCoderContest>> {
             let start = start.timestamp() as u64;
 
             let contest = tds.next().ok_or_else(|| Error::HtmlParseError)?;
-            let contest_title = contest.text().next().ok_or_else(|| Error::HtmlParseError)?;
+            let contest_title = contest.select(&Selector::parse("a").unwrap()).next().ok_or_else(|| Error::HtmlParseError)?.text().next().unwrap();
             let contest_link = contest
                 .select(&Selector::parse("a").unwrap())
                 .next()
