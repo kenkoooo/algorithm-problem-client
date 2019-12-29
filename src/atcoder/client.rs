@@ -73,16 +73,16 @@ mod tests {
     fn test_fetch_submission_list() {
         let client = AtCoderClient::default();
         let response = client
-            .fetch_atcoder_submission_list("abc134", None)
+            .fetch_atcoder_submission_list("xmascon17", None)
             .unwrap();
         assert_eq!(response.submissions.len(), 20);
 
         let response = client
-            .fetch_atcoder_submission_list("abc134", Some(response.max_page))
+            .fetch_atcoder_submission_list("xmascon17", Some(response.max_page))
             .unwrap();
         assert!(!response.submissions.is_empty());
 
-        let response = client.fetch_atcoder_submission_list("abc134", Some(response.max_page + 1));
+        let response = client.fetch_atcoder_submission_list("xmascon17", Some(response.max_page + 1));
         assert!(response.is_err());
     }
 }

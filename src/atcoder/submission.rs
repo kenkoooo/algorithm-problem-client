@@ -77,7 +77,7 @@ pub(super) fn scrape(html_text: &str, contest_id: &str) -> Result<Vec<AtCoderSub
                 .unwrap_or("")
                 .to_owned();
 
-            let point: u64 = tds
+            let point: f64 = tds
                 .next()
                 .ok_or_else(|| Error::HtmlParseError)?
                 .text()
