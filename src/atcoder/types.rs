@@ -14,7 +14,7 @@ pub struct AtCoderContest {
     pub rate_change: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct AtCoderSubmission {
     pub id: u64,
     pub epoch_second: u64,
@@ -22,7 +22,7 @@ pub struct AtCoderSubmission {
     pub contest_id: String,
     pub user_id: String,
     pub language: String,
-    pub point: u64,
+    pub point: f64,
     pub length: u64,
     pub result: String,
     pub execution_time: Option<u64>,

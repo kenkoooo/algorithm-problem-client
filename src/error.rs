@@ -3,6 +3,7 @@ pub enum Error {
     Http(::reqwest::Error),
     HtmlParseError,
     ParseIntError(::std::num::ParseIntError),
+    ParseFloatError(::std::num::ParseFloatError),
     ParseDateError(::chrono::format::ParseError),
 }
 
@@ -17,6 +18,12 @@ impl From<::reqwest::Error> for Error {
 impl From<::std::num::ParseIntError> for Error {
     fn from(err: ::std::num::ParseIntError) -> Self {
         Error::ParseIntError(err)
+    }
+}
+
+impl From<::std::num::ParseFloatError> for Error {
+    fn from(err: ::std::num::ParseFloatError) -> Self {
+        Error::ParseFloatError(err)
     }
 }
 
