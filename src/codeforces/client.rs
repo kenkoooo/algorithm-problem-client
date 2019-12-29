@@ -1,32 +1,28 @@
 use super::*;
 
-use crate::util::HttpClient;
+use crate::util;
 use crate::Result;
 use serde::Deserialize;
 
 const BASE_URL: &str = "https://codeforces.com/api";
 
-pub struct CodeforcesClient {
-    http_client: HttpClient,
-}
+pub struct CodeforcesClient;
 
 impl Default for CodeforcesClient {
     fn default() -> Self {
-        Self {
-            http_client: HttpClient::default(),
-        }
+        Self
     }
 }
 
 impl CodeforcesClient {
-    pub fn fetch_problems(&self) -> Result<Vec<CodeforcesProblem>> {
+    pub async fn fetch_problems(&self) -> Result<Vec<CodeforcesProblem>> {
         let url = format!("{}/problemset.problems", BASE_URL);
-        self.http_client
-            .get_json::<CodeforcesProblemResponse>(&url)
+        util::get_json::<CodeforcesProblemResponse>(&url)
+            .await
             .map(|response| response.result.problems)
     }
 
-    pub fn fetch_submissions(
+    pub async fn fetch_submissions(
         &self,
         user_id: &str,
         from: u32,
@@ -39,8 +35,8 @@ impl CodeforcesClient {
             from = from,
             count = count,
         );
-        self.http_client
-            .get_json::<SubmissionResult>(&url)
+        util::get_json::<SubmissionResult>(&url)
+            .await
             .map(|response| {
                 response
                     .result
@@ -107,17 +103,18 @@ impl Submission {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::executor::block_on;
 
     #[test]
     fn test_fetch_problems() {
         let client = CodeforcesClient::default();
-        assert!(client.fetch_problems().unwrap().len() > 0);
+        assert!(block_on(client.fetch_problems()).unwrap().len() > 0);
     }
 
     #[test]
     fn test_fetch_submissions() {
         let client = CodeforcesClient::default();
-        let submissions = client.fetch_submissions("kenkoooo", 1, 10).unwrap();
+        let submissions = block_on(client.fetch_submissions("kenkoooo", 1, 10)).unwrap();
         assert_eq!(submissions.len(), 10);
     }
 }

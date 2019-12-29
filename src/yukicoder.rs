@@ -1,25 +1,21 @@
-use crate::util::{HttpClient, Problem};
+use crate::util::{self, Problem};
 use crate::Result;
 use serde::Deserialize;
 
 const BASE_URL: &str = "https://yukicoder.me/api/v1";
 
-pub struct YukicoderClient {
-    http_client: HttpClient,
-}
+pub struct YukicoderClient;
 
 impl Default for YukicoderClient {
     fn default() -> Self {
-        Self {
-            http_client: HttpClient::default(),
-        }
+        Self
     }
 }
 
 impl YukicoderClient {
-    pub fn fetch_problems(&self) -> Result<Vec<YukicoderProblem>> {
+    pub async fn fetch_problems(&self) -> Result<Vec<YukicoderProblem>> {
         let url = format!("{}/problems", BASE_URL);
-        self.http_client.get_json(&url)
+        util::get_json(&url).await
     }
 }
 
@@ -42,10 +38,11 @@ impl Problem for YukicoderProblem {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::executor::block_on;
 
     #[test]
     fn test_fetch_problems() {
         let client = YukicoderClient::default();
-        assert!(client.fetch_problems().is_ok());
+        assert!(block_on(client.fetch_problems()).is_ok());
     }
 }

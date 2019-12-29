@@ -1,4 +1,4 @@
-use crate::util::HttpClient;
+use crate::util;
 use crate::Result;
 
 use super::*;
@@ -27,22 +27,21 @@ impl CodeChefProblemPage {
     }
 }
 
-pub struct CodeChefClient {
-    http_client: HttpClient,
-}
+pub struct CodeChefClient;
 
 impl Default for CodeChefClient {
     fn default() -> Self {
-        Self {
-            http_client: HttpClient::default(),
-        }
+        Self
     }
 }
 
 impl CodeChefClient {
-    pub fn fetch_problem_list(&self, page: CodeChefProblemPage) -> Result<Vec<CodeChefProblem>> {
+    pub async fn fetch_problem_list(
+        &self,
+        page: CodeChefProblemPage,
+    ) -> Result<Vec<CodeChefProblem>> {
         let url = format!("{}{}", CODECHEF_PREFIX, page.value());
-        let html = self.http_client.get_html(&url)?;
+        let html = util::get_html(&url).await?;
         problem::scrape(&html)
     }
 }
@@ -50,21 +49,16 @@ impl CodeChefClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::executor::block_on;
 
     #[test]
     fn test_fetch_problem_list() {
         let client = CodeChefClient::default();
-        assert!(client
-            .fetch_problem_list(CodeChefProblemPage::Beginner)
-            .is_ok());
-        assert!(client.fetch_problem_list(CodeChefProblemPage::Easy).is_ok());
-        assert!(client
-            .fetch_problem_list(CodeChefProblemPage::Medium)
-            .is_ok());
-        assert!(client.fetch_problem_list(CodeChefProblemPage::Hard).is_ok());
-        assert!(client
-            .fetch_problem_list(CodeChefProblemPage::Challenge)
-            .is_ok());
-        assert!(client.fetch_problem_list(CodeChefProblemPage::Peer).is_ok());
+        assert!(block_on(client.fetch_problem_list(CodeChefProblemPage::Beginner)).is_ok());
+        assert!(block_on(client.fetch_problem_list(CodeChefProblemPage::Easy)).is_ok());
+        assert!(block_on(client.fetch_problem_list(CodeChefProblemPage::Medium)).is_ok());
+        assert!(block_on(client.fetch_problem_list(CodeChefProblemPage::Hard)).is_ok());
+        assert!(block_on(client.fetch_problem_list(CodeChefProblemPage::Challenge)).is_ok());
+        assert!(block_on(client.fetch_problem_list(CodeChefProblemPage::Peer)).is_ok());
     }
 }

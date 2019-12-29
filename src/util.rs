@@ -18,27 +18,6 @@ pub(crate) async fn get_json<T: DeserializeOwned>(url: &str) -> Result<T> {
         .await?)
 }
 
-pub(crate) struct HttpClient;
-
-impl Default for HttpClient {
-    fn default() -> Self {
-        Self
-    }
-}
-
-impl HttpClient {
-    pub(crate) fn get_html(&self, url: &str) -> Result<String> {
-        futures::executor::block_on(get_html(url))
-    }
-
-    pub(crate) fn get_json<T>(&self, url: &str) -> Result<T>
-    where
-        T: DeserializeOwned,
-    {
-        futures::executor::block_on(get_json(url))
-    }
-}
-
 pub trait Problem {
     fn url(&self) -> String;
 }
