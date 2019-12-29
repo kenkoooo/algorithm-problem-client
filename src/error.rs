@@ -1,6 +1,6 @@
 #[derive(Debug)]
 pub enum Error {
-    Http(::reqwest::Error),
+    Http(::surf::Exception),
     HtmlParseError,
     ParseIntError(::std::num::ParseIntError),
     ParseFloatError(::std::num::ParseFloatError),
@@ -9,8 +9,8 @@ pub enum Error {
 
 pub type Result<T> = ::std::result::Result<T, Error>;
 
-impl From<::reqwest::Error> for Error {
-    fn from(err: ::reqwest::Error) -> Self {
+impl From<::surf::Exception> for Error {
+    fn from(err: ::surf::Exception) -> Self {
         Error::Http(err)
     }
 }
